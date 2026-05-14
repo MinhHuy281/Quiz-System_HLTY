@@ -1,22 +1,33 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+import sequelize from "./config/db.js";
 
-dotenv.config();
+import "./models/Question.js";
+import "./models/Answer.js";
+import "./models/Result.js";
+
+import questionRoutes from "../routes/questionRoutes.js";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/questions", questionRoutes);
+
 app.get("/api/health", (req, res) => {
   res.json({
     status: "OK",
+    message: "Server is running",
   });
 });
 
-const PORT = process.env.PORT || 5000;
+sequelize.sync()
+  .then(() => {
+    console.log("Database synced");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+export default app;
